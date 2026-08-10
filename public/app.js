@@ -9,6 +9,7 @@ const loginForm = document.getElementById("login-form");
 const loginError = document.getElementById("login-error");
 const btnDemoAdmin = document.getElementById("btn-demo-admin");
 const btnDemoStaff = document.getElementById("btn-demo-staff");
+const btnCloseModal = document.getElementById("btn-close-modal");
 
 let currentUser = null;
 let authToken = localStorage.getItem("hotel_auth_token") || null;
@@ -126,6 +127,18 @@ btnDemoStaff.addEventListener("click", () => {
   document.getElementById("login-password").value = "staff123";
   performLogin("staff", "staff123");
 });
+
+if (btnCloseModal) {
+  btnCloseModal.addEventListener("click", closeLoginModal);
+}
+
+if (loginModal) {
+  loginModal.addEventListener("click", (e) => {
+    if (e.target === loginModal) {
+      closeLoginModal();
+    }
+  });
+}
 
 // ---------- Data Loaders ----------
 async function loadRooms() {

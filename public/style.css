@@ -225,6 +225,7 @@ th {
 }
 
 .modal-card {
+  position: relative;
   background: white;
   width: 100%;
   max-width: 400px;
@@ -232,6 +233,27 @@ th {
   padding: 30px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   animation: modalSlide 0.3s ease-out;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 26px;
+  font-weight: 300;
+  color: #64748b;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  color: #0f172a;
+  background: #f1f5f9;
 }
 
 @keyframes modalSlide {
