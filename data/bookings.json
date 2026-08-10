@@ -34,9 +34,9 @@
     "pricePerNight": 4000,
     "checkInDate": "2026-08-08",
     "nights": 4,
-    "status": "Checked-In",
-    "totalBill": null,
-    "checkOutDate": null
+    "status": "Checked-Out",
+    "totalBill": 16000,
+    "checkOutDate": "2026-08-10"
   },
   {
     "id": 1723300000004,

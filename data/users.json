@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "admin123",
+    "name": "Rajesh Sharma",
+    "role": "Administrator",
+    "avatar": "👨‍💼"
+  },
+  {
+    "id": 2,
+    "username": "staff",
+    "password": "staff123",
+    "name": "Ananya Roy",
+    "role": "Front Desk Staff",
+    "avatar": "👩‍💻"
+  }
+]

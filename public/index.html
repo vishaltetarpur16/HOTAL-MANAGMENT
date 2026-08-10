@@ -8,13 +8,18 @@
 </head>
 <body>
 
-<header>
-  <h1>🏨 Hotel Management System</h1>
+<header class="header">
+  <div class="header-brand">
+    <h1>🏨 Hotel Management System</h1>
+  </div>
+  <div class="header-user" id="header-user">
+    <!-- Populated dynamically via JS -->
+  </div>
 </header>
 
 <main>
   <section class="card">
-    <h2>Rooms</h2>
+    <h2>Rooms Status</h2>
     <div id="rooms-grid" class="rooms-grid"></div>
   </section>
 
@@ -50,6 +55,36 @@
   </section>
 </main>
 
+<!-- Login Modal Overlay -->
+<div id="login-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>🔐 Staff Login</h2>
+      <p>Sign in to manage rooms and hotel check-ins</p>
+    </div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="Enter username (e.g. admin)" required />
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Enter password (e.g. admin123)" required />
+      </div>
+      <button type="submit" class="btn-primary">Sign In</button>
+      <p id="login-error" class="error-msg"></p>
+    </form>
+    <div class="demo-logins">
+      <p>Quick Demo Login:</p>
+      <div class="demo-btn-group">
+        <button type="button" id="btn-demo-admin" class="btn-demo">👨‍💼 Admin (admin / admin123)</button>
+        <button type="button" id="btn-demo-staff" class="btn-demo">👩‍💻 Staff (staff / staff123)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>
+
