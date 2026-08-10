@@ -1,0 +1,50 @@
+[
+  {
+    "id": 101,
+    "type": "Single",
+    "price": 1500,
+    "status": "Available"
+  },
+  {
+    "id": 102,
+    "type": "Single",
+    "price": 1500,
+    "status": "Available"
+  },
+  {
+    "id": 103,
+    "type": "Double",
+    "price": 2500,
+    "status": "Available"
+  },
+  {
+    "id": 104,
+    "type": "Double",
+    "price": 2500,
+    "status": "Available"
+  },
+  {
+    "id": 105,
+    "type": "Deluxe",
+    "price": 4000,
+    "status": "Available"
+  },
+  {
+    "id": 106,
+    "type": "Deluxe",
+    "price": 4000,
+    "status": "Available"
+  },
+  {
+    "id": 107,
+    "type": "Suite",
+    "price": 7000,
+    "status": "Available"
+  },
+  {
+    "id": 108,
+    "type": "Suite",
+    "price": 7000,
+    "status": "Available"
+  }
+]

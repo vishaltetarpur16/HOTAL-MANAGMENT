@@ -1,0 +1,16 @@
+{
+  "name": "hotel-management-system",
+  "version": "1.0.0",
+  "description": "A simple Hotel Management System (rooms, booking, checkout) built with Node.js, Express, and vanilla JS.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["hotel", "management", "booking", "nodejs", "express"],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}

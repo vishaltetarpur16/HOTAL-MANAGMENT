@@ -1,0 +1,133 @@
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f6f8;
+  color: #1f2933;
+}
+
+header {
+  background: #1f4e79;
+  color: white;
+  padding: 20px 30px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+main {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px 25px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 18px;
+  border-bottom: 2px solid #eaeef2;
+  padding-bottom: 10px;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.room-tile {
+  border-radius: 8px;
+  padding: 14px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+}
+
+.room-tile.available { background: #2e7d32; }
+.room-tile.occupied { background: #c62828; }
+
+.room-tile small {
+  display: block;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+form input, form select {
+  flex: 1;
+  min-width: 150px;
+  padding: 10px;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+form button {
+  padding: 10px 20px;
+  background: #1f4e79;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+form button:hover {
+  background: #163a5c;
+}
+
+#booking-msg {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid #eaeef2;
+}
+
+th {
+  background: #f8fafc;
+}
+
+.btn-checkout {
+  padding: 6px 12px;
+  background: #ef6c00;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-checkout:hover {
+  background: #c65600;
+}
+
+.status-checkedin { color: #c62828; font-weight: 600; }
+.status-checkedout { color: #2e7d32; font-weight: 600; }

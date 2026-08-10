@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hotel Management System</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>🏨 Hotel Management System</h1>
+</header>
+
+<main>
+  <section class="card">
+    <h2>Rooms</h2>
+    <div id="rooms-grid" class="rooms-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>New Booking (Check-In)</h2>
+    <form id="booking-form">
+      <input type="text" id="guestName" placeholder="Guest Name" required />
+      <input type="text" id="phone" placeholder="Phone Number" />
+      <select id="roomId" required></select>
+      <input type="date" id="checkInDate" required />
+      <input type="number" id="nights" placeholder="Number of Nights" min="1" required />
+      <button type="submit">Check In</button>
+    </form>
+    <p id="booking-msg"></p>
+  </section>
+
+  <section class="card">
+    <h2>Active Bookings</h2>
+    <table id="bookings-table">
+      <thead>
+        <tr>
+          <th>Guest</th>
+          <th>Room</th>
+          <th>Check-In</th>
+          <th>Nights</th>
+          <th>Status</th>
+          <th>Bill</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="bookings-body"></tbody>
+    </table>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
