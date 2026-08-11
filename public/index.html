@@ -1,91 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Hotel Management System</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luxe3D - Hotel Management System</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for modern icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<header class="header">
-  <div class="header-brand">
-    <h1>🏨 Hotel Management System</h1>
-  </div>
-  <div class="header-user" id="header-user">
-    <!-- Populated dynamically via JS -->
-  </div>
-</header>
+  <!-- Background Ambient Glow Spheres for 3D Depth -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
 
-<main>
-  <section class="card">
-    <h2>Rooms Status</h2>
-    <div id="rooms-grid" class="rooms-grid"></div>
-  </section>
-
-  <section class="card">
-    <h2>New Booking (Check-In)</h2>
-    <form id="booking-form">
-      <input type="text" id="guestName" placeholder="Guest Name" required />
-      <input type="text" id="phone" placeholder="Phone Number" />
-      <select id="roomId" required></select>
-      <input type="date" id="checkInDate" required />
-      <input type="number" id="nights" placeholder="Number of Nights" min="1" required />
-      <button type="submit">Check In</button>
-    </form>
-    <p id="booking-msg"></p>
-  </section>
-
-  <section class="card">
-    <h2>Active Bookings</h2>
-    <table id="bookings-table">
-      <thead>
-        <tr>
-          <th>Guest</th>
-          <th>Room</th>
-          <th>Check-In</th>
-          <th>Nights</th>
-          <th>Status</th>
-          <th>Bill</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="bookings-body"></tbody>
-    </table>
-  </section>
-</main>
-
-<!-- Login Modal Overlay -->
-<div id="login-modal" class="modal-overlay hidden">
-  <div class="modal-card">
-    <button type="button" id="btn-close-modal" class="modal-close-btn" aria-label="Close">&times;</button>
-    <div class="modal-header">
-      <h2>🔐 Staff Login</h2>
-      <p>Sign in to manage rooms and hotel check-ins</p>
-    </div>
-    <form id="login-form">
-      <div class="form-group">
-        <label for="login-username">Username</label>
-        <input type="text" id="login-username" placeholder="Enter username (e.g. admin)" required />
+  <!-- Header -->
+  <header class="header-3d">
+    <div class="header-content">
+      <div class="header-brand">
+        <div class="brand-icon-3d">
+          <i class="fa-solid fa-hotel"></i>
+        </div>
+        <div>
+          <h1>GRAND HYATT <span class="brand-badge">3D LUXE</span></h1>
+          <p class="brand-subtitle">Smart Room & Booking Dashboard</p>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="login-password">Password</label>
-        <input type="password" id="login-password" placeholder="Enter password (e.g. admin123)" required />
-      </div>
-      <button type="submit" class="btn-primary">Sign In</button>
-      <p id="login-error" class="error-msg"></p>
-    </form>
-    <div class="demo-logins">
-      <p>Quick Demo Login:</p>
-      <div class="demo-btn-group">
-        <button type="button" id="btn-demo-admin" class="btn-demo">👨‍💼 Admin (admin / admin123)</button>
-        <button type="button" id="btn-demo-staff" class="btn-demo">👩‍💻 Staff (staff / staff123)</button>
+
+      <div class="header-right">
+        <div class="live-clock-pill">
+          <i class="fa-regular fa-clock"></i>
+          <span id="live-clock">--:--:--</span>
+        </div>
+        <div class="header-user" id="header-user">
+          <!-- Populated dynamically via JS -->
+        </div>
       </div>
     </div>
-  </div>
-</div>
+  </header>
 
-<script src="app.js"></script>
+  <main class="main-container">
+    
+    <!-- 3D KPI Stats Section -->
+    <section class="kpi-grid">
+      <div class="kpi-card tilt-element" id="stat-total-rooms">
+        <div class="kpi-icon icon-blue">
+          <i class="fa-solid fa-bed"></i>
+        </div>
+        <div class="kpi-details">
+          <span class="kpi-title">Total Rooms</span>
+          <h3 class="kpi-value" id="kpi-total-rooms">0</h3>
+          <span class="kpi-subtext">Capacity units</span>
+        </div>
+      </div>
+
+      <div class="kpi-card tilt-element" id="stat-available">
+        <div class="kpi-icon icon-green">
+          <i class="fa-solid fa-door-open"></i>
+        </div>
+        <div class="kpi-details">
+          <span class="kpi-title">Available Rooms</span>
+          <h3 class="kpi-value text-green" id="kpi-available">0</h3>
+          <span class="kpi-subtext">Ready for check-in</span>
+        </div>
+      </div>
+
+      <div class="kpi-card tilt-element" id="stat-occupied">
+        <div class="kpi-icon icon-rose">
+          <i class="fa-solid fa-user-lock"></i>
+        </div>
+        <div class="kpi-details">
+          <span class="kpi-title">Occupied Rooms</span>
+          <h3 class="kpi-value text-rose" id="kpi-occupied">0</h3>
+          <span class="kpi-subtext">Guests staying</span>
+        </div>
+      </div>
+
+      <div class="kpi-card tilt-element" id="stat-active-bookings">
+        <div class="kpi-icon icon-amber">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <div class="kpi-details">
+          <span class="kpi-title">Active Stays</span>
+          <h3 class="kpi-value text-amber" id="kpi-active-bookings">0</h3>
+          <span class="kpi-subtext">In-house guests</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Dashboard Grid Layout -->
+    <div class="dashboard-grid">
+
+      <!-- Left Column: Rooms Grid & Status -->
+      <div class="dash-col main-col">
+        <section class="card-3d">
+          <div class="card-header-3d">
+            <div class="title-with-icon">
+              <i class="fa-solid fa-grip"></i>
+              <h2>Room Inventory & Live Status</h2>
+            </div>
+            <div class="room-filters">
+              <button class="filter-btn active" data-filter="all">All</button>
+              <button class="filter-btn" data-filter="Available">Available</button>
+              <button class="filter-btn" data-filter="Occupied">Occupied</button>
+            </div>
+          </div>
+          <div id="rooms-grid" class="rooms-grid-3d"></div>
+        </section>
+      </div>
+
+      <!-- Right Column: Quick Check-In Form -->
+      <div class="dash-col side-col">
+        <section class="card-3d highlight-card">
+          <div class="card-header-3d">
+            <div class="title-with-icon">
+              <i class="fa-solid fa-key text-gold"></i>
+              <h2>Quick Check-In</h2>
+            </div>
+          </div>
+
+          <form id="booking-form" class="form-3d">
+            <div class="form-field">
+              <label for="guestName"><i class="fa-solid fa-user"></i> Guest Full Name</label>
+              <input type="text" id="guestName" placeholder="e.g. Rahul Sharma" required />
+            </div>
+
+            <div class="form-field">
+              <label for="phone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+              <input type="text" id="phone" placeholder="+91 98765 43210" />
+            </div>
+
+            <div class="form-field">
+              <label for="roomId"><i class="fa-solid fa-door-closed"></i> Select Room</label>
+              <select id="roomId" required></select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="checkInDate"><i class="fa-solid fa-calendar-days"></i> Date</label>
+                <input type="date" id="checkInDate" required />
+              </div>
+
+              <div class="form-field">
+                <label for="nights"><i class="fa-solid fa-moon"></i> Nights</label>
+                <input type="number" id="nights" placeholder="1" min="1" value="1" required />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-3d btn-primary-3d">
+              <i class="fa-solid fa-check"></i> Complete Check-In
+            </button>
+          </form>
+          <div id="booking-msg" class="booking-msg-3d"></div>
+        </section>
+      </div>
+
+    </div>
+
+    <!-- Bookings Table Section -->
+    <section class="card-3d full-width-card">
+      <div class="card-header-3d">
+        <div class="title-with-icon">
+          <i class="fa-solid fa-list-check"></i>
+          <h2>Active & Recent Guest Bookings</h2>
+        </div>
+        <div class="table-search">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="table-search-input" placeholder="Search guest name or room..." />
+        </div>
+      </div>
+
+      <div class="table-responsive-3d">
+        <table id="bookings-table" class="table-3d">
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-user"></i> Guest Name</th>
+              <th><i class="fa-solid fa-door-open"></i> Room</th>
+              <th><i class="fa-solid fa-calendar-day"></i> Check-In Date</th>
+              <th><i class="fa-solid fa-moon"></i> Stay</th>
+              <th><i class="fa-solid fa-shield-halved"></i> Status</th>
+              <th><i class="fa-solid fa-indian-rupee-sign"></i> Total Bill</th>
+              <th><i class="fa-solid fa-gear"></i> Quick Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Overlay -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Login Modal Overlay -->
+  <div id="login-modal" class="modal-overlay hidden">
+    <div class="modal-card-3d tilt-element">
+      <button type="button" id="btn-close-modal" class="modal-close-btn-3d" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header-3d">
+        <div class="modal-icon-3d">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <h2>Staff Authentication</h2>
+        <p>Sign in to access management controls & billing</p>
+      </div>
+
+      <form id="login-form" class="form-3d">
+        <div class="form-field">
+          <label for="login-username"><i class="fa-solid fa-user"></i> Username</label>
+          <input type="text" id="login-username" placeholder="e.g. admin" required />
+        </div>
+
+        <div class="form-field">
+          <label for="login-password"><i class="fa-solid fa-key"></i> Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn-3d btn-primary-3d btn-block">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In to System
+        </button>
+
+        <p id="login-error" class="error-msg-3d"></p>
+      </form>
+
+      <div class="demo-logins-3d">
+        <span class="demo-title"><i class="fa-solid fa-bolt text-amber"></i> Quick Demo Access</span>
+        <div class="demo-btn-group">
+          <button type="button" id="btn-demo-admin" class="btn-demo-3d">
+            <span class="demo-role">👨‍💼 Administrator</span>
+            <span class="demo-creds">admin / admin123</span>
+          </button>
+          <button type="button" id="btn-demo-staff" class="btn-demo-3d">
+            <span class="demo-role">👩‍💻 Front Desk Staff</span>
+            <span class="demo-creds">staff / staff123</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
-

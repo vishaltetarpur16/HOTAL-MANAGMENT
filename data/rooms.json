@@ -9,7 +9,7 @@
     "id": 102,
     "type": "Single",
     "price": 1500,
-    "status": "Available"
+    "status": "Occupied"
   },
   {
     "id": 103,
@@ -21,7 +21,7 @@
     "id": 104,
     "type": "Double",
     "price": 2500,
-    "status": "Available"
+    "status": "Occupied"
   },
   {
     "id": 105,
