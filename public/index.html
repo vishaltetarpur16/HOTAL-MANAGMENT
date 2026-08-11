@@ -217,6 +217,228 @@
 
   </main>
 
+  <!-- ADMIN PANEL OVERLAY MODAL -->
+  <div id="admin-panel-overlay" class="modal-backdrop hidden">
+    <div class="admin-panel-box">
+      <div class="admin-panel-header">
+        <div class="admin-header-title">
+          <i class="fa-solid fa-sliders text-gold"></i>
+          <div>
+            <h2>Administrator Control Center</h2>
+            <p>System Configuration, Room Inventory & Staff Accounts</p>
+          </div>
+        </div>
+        <button type="button" id="btn-close-admin" class="modal-close" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Admin Sub Navigation Tabs -->
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="tab-rooms">
+          <i class="fa-solid fa-bed"></i> Room Management
+        </button>
+        <button class="admin-tab-btn" data-tab="tab-staff">
+          <i class="fa-solid fa-users-gear"></i> Staff Accounts
+        </button>
+        <button class="admin-tab-btn" data-tab="tab-analytics">
+          <i class="fa-solid fa-chart-line"></i> Revenue & Analytics
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="admin-tab-body">
+
+        <!-- TAB 1: Room Management -->
+        <div id="tab-rooms" class="admin-tab-pane active">
+          <div class="admin-pane-grid">
+            
+            <!-- Left: Add New Room Form -->
+            <div class="admin-form-card">
+              <h3><i class="fa-solid fa-plus-circle text-blue"></i> Add New Room</h3>
+              <form id="admin-add-room-form" class="custom-form">
+                <div class="form-group">
+                  <label for="new-room-id">Room Number <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-door-closed input-icon"></i>
+                    <input type="number" id="new-room-id" placeholder="e.g. 106" min="1" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-room-type">Room Type <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-layer-group input-icon"></i>
+                    <select id="new-room-type" required>
+                      <option value="Single">Single Class</option>
+                      <option value="Double">Double Suite</option>
+                      <option value="Suite">Executive Suite</option>
+                      <option value="Deluxe">Deluxe Luxury</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-room-price">Price Per Night (₹) <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-indian-rupee-sign input-icon"></i>
+                    <input type="number" id="new-room-price" placeholder="2500" min="100" required />
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                  <i class="fa-solid fa-plus"></i> Add Room to Inventory
+                </button>
+              </form>
+            </div>
+
+            <!-- Right: Rooms Management Table -->
+            <div class="admin-table-card">
+              <h3><i class="fa-solid fa-list"></i> Current Rooms Roster</h3>
+              <div class="table-wrapper">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Room #</th>
+                      <th>Class Type</th>
+                      <th>Nightly Rate</th>
+                      <th>Status</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-rooms-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 2: Staff Accounts -->
+        <div id="tab-staff" class="admin-tab-pane">
+          <div class="admin-pane-grid">
+
+            <!-- Add Staff Form -->
+            <div class="admin-form-card">
+              <h3><i class="fa-solid fa-user-plus text-emerald"></i> Add Staff / Admin</h3>
+              <form id="admin-add-user-form" class="custom-form">
+                <div class="form-group">
+                  <label for="new-user-name">Full Name <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-id-card input-icon"></i>
+                    <input type="text" id="new-user-name" placeholder="e.g. Priya Sharma" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-user-username">Username <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-at input-icon"></i>
+                    <input type="text" id="new-user-username" placeholder="priya_desk" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-user-password">Password <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-key input-icon"></i>
+                    <input type="password" id="new-user-password" placeholder="••••••••" required />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="new-user-role">Role Permissions <span class="req">*</span></label>
+                  <div class="input-wrapper">
+                    <i class="fa-solid fa-shield-halved input-icon"></i>
+                    <select id="new-user-role" required>
+                      <option value="Front Desk Staff">Front Desk Staff</option>
+                      <option value="Administrator">Administrator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                  <i class="fa-solid fa-user-check"></i> Register Account
+                </button>
+              </form>
+            </div>
+
+            <!-- Users List Table -->
+            <div class="admin-table-card">
+              <h3><i class="fa-solid fa-users"></i> Authorized Personnel</h3>
+              <div class="table-wrapper">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Username</th>
+                      <th>Role</th>
+                      <th style="text-align: right;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-users-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 3: Revenue & Analytics -->
+        <div id="tab-analytics" class="admin-tab-pane">
+          <div class="analytics-grid">
+            
+            <div class="analytics-card">
+              <div class="analytics-icon icon-emerald">
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+              </div>
+              <div>
+                <span class="analytics-label">Total Settled Revenue</span>
+                <h2 class="analytics-value text-emerald" id="analytics-total-revenue">₹0</h2>
+                <span class="analytics-sub">From completed checkouts</span>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-amber">
+                <i class="fa-solid fa-vault"></i>
+              </div>
+              <div>
+                <span class="analytics-label">Active Stays Potential</span>
+                <h2 class="analytics-value text-amber" id="analytics-projected-revenue">₹0</h2>
+                <span class="analytics-sub">Current active bookings</span>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-slate">
+                <i class="fa-solid fa-chart-pie"></i>
+              </div>
+              <div>
+                <span class="analytics-label">Current Occupancy Rate</span>
+                <h2 class="analytics-value" id="analytics-occupancy-rate">0%</h2>
+                <span class="analytics-sub">Occupied vs Capacity</span>
+              </div>
+            </div>
+
+            <div class="analytics-card">
+              <div class="analytics-icon icon-rose">
+                <i class="fa-solid fa-calendar-check"></i>
+              </div>
+              <div>
+                <span class="analytics-label">Average Stay Length</span>
+                <h2 class="analytics-value" id="analytics-avg-nights">0 Nights</h2>
+                <span class="analytics-sub">Per guest booking</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Overlay -->
   <div id="toast-container" class="toast-stack"></div>
 

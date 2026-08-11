@@ -12,6 +12,22 @@ const btnDemoAdmin = document.getElementById("btn-demo-admin");
 const btnDemoStaff = document.getElementById("btn-demo-staff");
 const btnCloseModal = document.getElementById("btn-close-modal");
 
+// Admin Panel Elements
+const adminPanelOverlay = document.getElementById("admin-panel-overlay");
+const btnCloseAdmin = document.getElementById("btn-close-admin");
+const adminTabBtns = document.querySelectorAll(".admin-tab-btn");
+const adminTabPanes = document.querySelectorAll(".admin-tab-pane");
+const adminAddRoomForm = document.getElementById("admin-add-room-form");
+const adminRoomsBody = document.getElementById("admin-rooms-body");
+const adminAddUserForm = document.getElementById("admin-add-user-form");
+const adminUsersBody = document.getElementById("admin-users-body");
+
+// Analytics Elements
+const analyticsTotalRevenue = document.getElementById("analytics-total-revenue");
+const analyticsProjectedRevenue = document.getElementById("analytics-projected-revenue");
+const analyticsOccupancyRate = document.getElementById("analytics-occupancy-rate");
+const analyticsAvgNights = document.getElementById("analytics-avg-nights");
+
 // KPI & Extra UI Elements
 const kpiTotalRooms = document.getElementById("kpi-total-rooms");
 const kpiAvailable = document.getElementById("kpi-available");
@@ -26,6 +42,7 @@ let currentUser = null;
 let authToken = localStorage.getItem("hotel_auth_token") || null;
 let allRoomsData = [];
 let allBookingsData = [];
+let allUsersData = [];
 let activeRoomFilter = "all";
 
 // ---------- Live Clock ----------
@@ -89,7 +106,9 @@ async function checkAuth() {
 function renderHeaderUser() {
   if (!headerUser) return;
   if (currentUser) {
+    const isAdmin = currentUser.role === "Administrator";
     headerUser.innerHTML = `
+      ${isAdmin ? `<button id="btn-open-admin" class="btn btn-admin-nav"><i class="fa-solid fa-sliders"></i> Admin Panel</button>` : ""}
       <div class="user-profile">
         <span class="user-avatar-circle">${currentUser.avatar}</span>
         <div class="user-details">
@@ -100,6 +119,9 @@ function renderHeaderUser() {
       <button id="btn-logout" class="btn btn-logout-nav"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     `;
     document.getElementById("btn-logout").addEventListener("click", performLogout);
+    if (isAdmin) {
+      document.getElementById("btn-open-admin").addEventListener("click", openAdminPanel);
+    }
     closeLoginModal();
   } else {
     headerUser.innerHTML = `
@@ -155,6 +177,7 @@ async function performLogout() {
   currentUser = null;
   localStorage.removeItem("hotel_auth_token");
   renderHeaderUser();
+  closeAdminPanel();
   showToast("Logged out successfully.", "success");
 }
 
@@ -193,6 +216,254 @@ if (loginModal) {
       closeLoginModal();
     }
   });
+}
+
+// ---------- Admin Panel Logic ----------
+function openAdminPanel() {
+  if (!currentUser || currentUser.role !== "Administrator") {
+    showToast("Administrator privileges required.", "error");
+    return;
+  }
+  if (adminPanelOverlay) adminPanelOverlay.classList.remove("hidden");
+  renderAdminRoomsTable();
+  loadAdminUsers();
+  renderAdminAnalytics();
+}
+
+function closeAdminPanel() {
+  if (adminPanelOverlay) adminPanelOverlay.classList.add("hidden");
+}
+
+if (btnCloseAdmin) {
+  btnCloseAdmin.addEventListener("click", closeAdminPanel);
+}
+
+if (adminPanelOverlay) {
+  adminPanelOverlay.addEventListener("click", (e) => {
+    if (e.target === adminPanelOverlay) {
+      closeAdminPanel();
+    }
+  });
+}
+
+adminTabBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    adminTabBtns.forEach((b) => b.classList.remove("active"));
+    adminTabPanes.forEach((p) => p.classList.remove("active"));
+    btn.classList.add("active");
+    const targetId = btn.getAttribute("data-tab");
+    const targetPane = document.getElementById(targetId);
+    if (targetPane) targetPane.classList.add("active");
+  });
+});
+
+// Admin Add Room Handler
+if (adminAddRoomForm) {
+  adminAddRoomForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!authToken) return;
+
+    const payload = {
+      id: document.getElementById("new-room-id").value,
+      type: document.getElementById("new-room-type").value,
+      price: document.getElementById("new-room-price").value
+    };
+
+    try {
+      const res = await fetch("/api/rooms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(`Room ${payload.id} (${payload.type}) added successfully!`, "success");
+        adminAddRoomForm.reset();
+        await loadRooms();
+        renderAdminRoomsTable();
+        renderAdminAnalytics();
+      } else {
+        showToast(data.error || "Failed to add room", "error");
+      }
+    } catch (err) {
+      showToast("Server error while adding room.", "error");
+    }
+  });
+}
+
+function renderAdminRoomsTable() {
+  if (!adminRoomsBody) return;
+  adminRoomsBody.innerHTML = "";
+
+  allRoomsData.forEach((room) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>Room ${room.id}</strong></td>
+      <td>${room.type}</td>
+      <td>₹${room.price}</td>
+      <td><span class="room-badge-pill ${room.status === "Available" ? "available" : "occupied"}">${room.status}</span></td>
+      <td style="text-align: right;">
+        <button class="btn-danger-sm btn-delete-room" data-id="${room.id}" ${room.status === "Occupied" ? "disabled style='opacity:0.5; cursor:not-allowed;'" : ""}>
+          <i class="fa-solid fa-trash"></i> Delete
+        </button>
+      </td>
+    `;
+    adminRoomsBody.appendChild(tr);
+  });
+
+  document.querySelectorAll(".btn-delete-room").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const roomId = btn.getAttribute("data-id");
+      if (!confirm(`Are you sure you want to delete Room ${roomId}?`)) return;
+
+      try {
+        const res = await fetch(`/api/rooms/${roomId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message, "success");
+          await loadRooms();
+          renderAdminRoomsTable();
+          renderAdminAnalytics();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (err) {
+        showToast("Error deleting room.", "error");
+      }
+    });
+  });
+}
+
+// Admin Users Handlers
+async function loadAdminUsers() {
+  if (!authToken) return;
+  try {
+    const res = await fetch("/api/users", {
+      headers: { Authorization: `Bearer ${authToken}` }
+    });
+    if (res.ok) {
+      allUsersData = await res.json();
+      renderAdminUsersTable();
+    }
+  } catch (err) {
+    console.error("Failed to load users:", err);
+  }
+}
+
+function renderAdminUsersTable() {
+  if (!adminUsersBody) return;
+  adminUsersBody.innerHTML = "";
+
+  allUsersData.forEach((u) => {
+    const tr = document.createElement("tr");
+    const isSelf = currentUser && currentUser.id === u.id;
+    tr.innerHTML = `
+      <td>
+        <span style="margin-right: 6px;">${u.avatar}</span>
+        <strong>${u.name}</strong> ${isSelf ? `<small style="color: var(--accent-blue);">(You)</small>` : ""}
+      </td>
+      <td><code>${u.username}</code></td>
+      <td><span class="status-pill ${u.role === "Administrator" ? "pill-checkedout" : "pill-checkedin"}">${u.role}</span></td>
+      <td style="text-align: right;">
+        ${
+          !isSelf
+            ? `<button class="btn-danger-sm btn-delete-user" data-id="${u.id}"><i class="fa-solid fa-user-minus"></i> Delete</button>`
+            : `<span style="color: var(--text-muted); font-size: 12px;">Active Session</span>`
+        }
+      </td>
+    `;
+    adminUsersBody.appendChild(tr);
+  });
+
+  document.querySelectorAll(".btn-delete-user").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const userId = btn.getAttribute("data-id");
+      if (!confirm("Are you sure you want to delete this staff user account?")) return;
+
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast(data.message, "success");
+          loadAdminUsers();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (err) {
+        showToast("Failed to delete user.", "error");
+      }
+    });
+  });
+}
+
+if (adminAddUserForm) {
+  adminAddUserForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!authToken) return;
+
+    const payload = {
+      name: document.getElementById("new-user-name").value,
+      username: document.getElementById("new-user-username").value,
+      password: document.getElementById("new-user-password").value,
+      role: document.getElementById("new-user-role").value
+    };
+
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast(`Staff account "${payload.name}" created!`, "success");
+        adminAddUserForm.reset();
+        loadAdminUsers();
+      } else {
+        showToast(data.error || "Failed to create user", "error");
+      }
+    } catch (err) {
+      showToast("Server error while adding user account.", "error");
+    }
+  });
+}
+
+function renderAdminAnalytics() {
+  const settledRevenue = allBookingsData
+    .filter((b) => b.status === "Checked-Out" && b.totalBill)
+    .reduce((sum, b) => sum + Number(b.totalBill), 0);
+
+  const activeProjected = allBookingsData
+    .filter((b) => b.status === "Checked-In")
+    .reduce((sum, b) => sum + Number(b.pricePerNight * b.nights), 0);
+
+  const totalRooms = allRoomsData.length;
+  const occupiedRooms = allRoomsData.filter((r) => r.status === "Occupied").length;
+  const occPercentage = totalRooms > 0 ? Math.round((occupiedRooms / totalRooms) * 100) : 0;
+
+  const totalNights = allBookingsData.reduce((sum, b) => sum + Number(b.nights || 0), 0);
+  const avgNights = allBookingsData.length > 0 ? (totalNights / allBookingsData.length).toFixed(1) : 0;
+
+  if (analyticsTotalRevenue) analyticsTotalRevenue.textContent = `₹${settledRevenue.toLocaleString()}`;
+  if (analyticsProjectedRevenue) analyticsProjectedRevenue.textContent = `₹${activeProjected.toLocaleString()}`;
+  if (analyticsOccupancyRate) analyticsOccupancyRate.textContent = `${occPercentage}%`;
+  if (analyticsAvgNights) analyticsAvgNights.textContent = `${avgNights} Nights`;
 }
 
 // ---------- Data Loaders & Stats ----------
@@ -256,6 +527,7 @@ async function loadBookings() {
     allBookingsData = await res.json();
     renderBookingsTable();
     updateKPIs();
+    renderAdminAnalytics();
   } catch (err) {
     console.error("Failed to load bookings:", err);
   }
@@ -289,6 +561,8 @@ function renderBookingsTable() {
     return;
   }
 
+  const isAdmin = currentUser && currentUser.role === "Administrator";
+
   filtered.forEach((b) => {
     const row = document.createElement("tr");
     const isCheckedIn = b.status === "Checked-In";
@@ -305,11 +579,18 @@ function renderBookingsTable() {
       <td style="font-weight: 700; color: ${b.totalBill ? "#047857" : "var(--text-muted)"};">
         ${b.totalBill !== null ? "₹" + b.totalBill : "-"}
       </td>
-      <td style="text-align: right;">${
-        isCheckedIn
-          ? `<button class="btn-checkout-action" data-id="${b.id}"><i class="fa-solid fa-right-from-bracket"></i> Check Out</button>`
-          : `<span style="color: var(--text-muted); font-size: 12px;">Completed</span>`
-      }</td>
+      <td style="text-align: right;">
+        ${
+          isCheckedIn
+            ? `<button class="btn-checkout-action" data-id="${b.id}"><i class="fa-solid fa-right-from-bracket"></i> Check Out</button>`
+            : `<span style="color: var(--text-muted); font-size: 12px;">Completed</span>`
+        }
+        ${
+          isAdmin
+            ? `<button class="btn-danger-sm btn-delete-booking" data-id="${b.id}" style="margin-left: 6px;" title="Delete Booking Record"><i class="fa-solid fa-trash"></i></button>`
+            : ""
+        }
+      </td>
     `;
     bookingsBody.appendChild(row);
   });
@@ -335,6 +616,32 @@ function renderBookingsTable() {
         }
       } catch (err) {
         showToast("Checkout failed. Server communication error.", "error");
+      }
+    });
+  });
+
+  // Attach Delete Booking Click Listeners (Admin only)
+  document.querySelectorAll(".btn-delete-booking").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const bookingId = btn.getAttribute("data-id");
+      if (!confirm("Are you sure you want to delete this booking record?")) return;
+
+      try {
+        const res = await fetch(`/api/bookings/${bookingId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast("Booking record deleted.", "success");
+          loadRooms();
+          loadBookings();
+        } else {
+          showToast(data.error, "error");
+        }
+      } catch (err) {
+        showToast("Failed to delete booking.", "error");
       }
     });
   });
