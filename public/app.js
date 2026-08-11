@@ -20,7 +20,7 @@ const kpiActiveBookings = document.getElementById("kpi-active-bookings");
 const liveClock = document.getElementById("live-clock");
 const tableSearchInput = document.getElementById("table-search-input");
 const toastContainer = document.getElementById("toast-container");
-const filterBtns = document.querySelectorAll(".filter-btn");
+const filterBtns = document.querySelectorAll(".segment-btn");
 
 let currentUser = null;
 let authToken = localStorage.getItem("hotel_auth_token") || null;
@@ -32,7 +32,7 @@ let activeRoomFilter = "all";
 function updateClock() {
   if (!liveClock) return;
   const now = new Date();
-  liveClock.textContent = now.toLocaleTimeString();
+  liveClock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -47,16 +47,16 @@ if (checkInInput) {
 function showToast(message, type = "success") {
   if (!toastContainer) return;
   const toast = document.createElement("div");
-  toast.className = `toast-3d toast-${type}`;
-  const icon = type === "success" ? "fa-circle-check text-green" : "fa-triangle-exclamation text-rose";
+  toast.className = `toast-item toast-${type}`;
+  const icon = type === "success" ? "fa-circle-check" : "fa-triangle-exclamation";
   toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
   toastContainer.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = "0";
-    toast.style.transform = "translateX(50px)";
-    toast.style.transition = "all 0.3s ease";
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transform = "translateX(40px)";
+    toast.style.transition = "all 0.25s ease";
+    setTimeout(() => toast.remove(), 250);
   }, 3500);
 }
 
@@ -90,20 +90,20 @@ function renderHeaderUser() {
   if (!headerUser) return;
   if (currentUser) {
     headerUser.innerHTML = `
-      <div class="user-badge-3d">
-        <span class="user-avatar-3d">${currentUser.avatar}</span>
-        <div class="user-info-3d">
-          <span class="user-name-3d">${currentUser.name}</span>
-          <span class="user-role-3d">${currentUser.role}</span>
+      <div class="user-profile">
+        <span class="user-avatar-circle">${currentUser.avatar}</span>
+        <div class="user-details">
+          <span class="user-name">${currentUser.name}</span>
+          <span class="user-role">${currentUser.role}</span>
         </div>
       </div>
-      <button id="btn-logout" class="btn-3d btn-logout-3d"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      <button id="btn-logout" class="btn btn-logout-nav"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     `;
     document.getElementById("btn-logout").addEventListener("click", performLogout);
     closeLoginModal();
   } else {
     headerUser.innerHTML = `
-      <button id="btn-open-login" class="btn-3d btn-login-3d"><i class="fa-solid fa-user-lock"></i> Staff Login</button>
+      <button id="btn-open-login" class="btn btn-login-nav"><i class="fa-solid fa-user-lock"></i> Staff Login</button>
     `;
     document.getElementById("btn-open-login").addEventListener("click", openLoginModal);
   }
@@ -195,32 +195,6 @@ if (loginModal) {
   });
 }
 
-// ---------- 3D Tilt Micro-interactions ----------
-function attach3DTiltEffects() {
-  const cards = document.querySelectorAll(".room-card-3d, .kpi-card, .tilt-element");
-  cards.forEach((card) => {
-    card.addEventListener("mousemove", (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -8;
-      const rotateY = ((x - centerX) / centerX) * 8;
-      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
-    });
-
-    card.addEventListener("mouseleave", () => {
-      card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
-      card.style.transition = "transform 0.5s ease";
-    });
-
-    card.addEventListener("mouseenter", () => {
-      card.style.transition = "none";
-    });
-  });
-}
-
 // ---------- Data Loaders & Stats ----------
 async function loadRooms() {
   try {
@@ -245,15 +219,15 @@ function renderRooms() {
   filtered.forEach((room) => {
     const isAvail = room.status === "Available";
     const tile = document.createElement("div");
-    tile.className = `room-card-3d ${isAvail ? "available" : "occupied"}`;
+    tile.className = `room-tile-human ${isAvail ? "available" : "occupied"}`;
     tile.innerHTML = `
-      <div class="room-header-3d">
-        <span class="room-number-3d"><i class="fa-solid fa-bed"></i> Room ${room.id}</span>
-        <span class="room-status-dot"></span>
+      <div class="room-tile-top">
+        <span class="room-num">Room ${room.id}</span>
+        <span class="room-dot"></span>
       </div>
-      <div class="room-type-3d">${room.type} Class</div>
-      <div class="room-price-3d">₹${room.price} <small>/ night</small></div>
-      <div class="room-badge-3d">${room.status}</div>
+      <span class="room-type-lbl">${room.type} Suite</span>
+      <span class="room-rate">₹${room.price} <small style="font-weight: normal; color: var(--text-muted);">/ night</small></span>
+      <span class="room-badge-pill">${room.status}</span>
     `;
     roomsGrid.appendChild(tile);
   });
@@ -274,8 +248,6 @@ function renderRooms() {
     opt.disabled = true;
     roomSelect.appendChild(opt);
   }
-
-  attach3DTiltEffects();
 }
 
 async function loadBookings() {
@@ -321,29 +293,29 @@ function renderBookingsTable() {
     const row = document.createElement("tr");
     const isCheckedIn = b.status === "Checked-In";
     const statusBadge = isCheckedIn
-      ? `<span class="badge-status badge-checkedin"><i class="fa-solid fa-user-check"></i> Checked-In</span>`
-      : `<span class="badge-status badge-checkedout"><i class="fa-solid fa-flag-checkered"></i> Checked-Out</span>`;
+      ? `<span class="status-pill pill-checkedin"><i class="fa-solid fa-user-check"></i> Checked-In</span>`
+      : `<span class="status-pill pill-checkedout"><i class="fa-solid fa-check"></i> Checked-Out</span>`;
 
     row.innerHTML = `
-      <td>${b.guestName}</td>
-      <td><strong>Room ${b.roomId}</strong> <small style="color: var(--text-muted);">(${b.roomType})</small></td>
+      <td><strong>${b.guestName}</strong></td>
+      <td>Room ${b.roomId} <span style="color: var(--text-muted); font-size: 12px;">(${b.roomType})</span></td>
       <td>${b.checkInDate}</td>
       <td>${b.nights} night${b.nights > 1 ? "s" : ""}</td>
       <td>${statusBadge}</td>
-      <td style="font-weight: 700; color: ${b.totalBill ? "#34d399" : "var(--text-muted)"};">
+      <td style="font-weight: 700; color: ${b.totalBill ? "#047857" : "var(--text-muted)"};">
         ${b.totalBill !== null ? "₹" + b.totalBill : "-"}
       </td>
-      <td>${
+      <td style="text-align: right;">${
         isCheckedIn
-          ? `<button class="btn-checkout-3d" data-id="${b.id}"><i class="fa-solid fa-right-from-bracket"></i> Check Out</button>`
-          : `<span style="color: var(--text-subtle); font-size: 12px;">Completed</span>`
+          ? `<button class="btn-checkout-action" data-id="${b.id}"><i class="fa-solid fa-right-from-bracket"></i> Check Out</button>`
+          : `<span style="color: var(--text-muted); font-size: 12px;">Completed</span>`
       }</td>
     `;
     bookingsBody.appendChild(row);
   });
 
   // Attach Checkout Click Listeners
-  document.querySelectorAll(".btn-checkout-3d").forEach((btn) => {
+  document.querySelectorAll(".btn-checkout-action").forEach((btn) => {
     btn.addEventListener("click", async () => {
       if (!currentUser) {
         showToast("Please login as Staff or Admin to checkout guests.", "error");
@@ -440,4 +412,3 @@ bookingForm.addEventListener("submit", async (e) => {
 checkAuth();
 loadRooms();
 loadBookings();
-attach3DTiltEffects();
